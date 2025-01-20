@@ -30,6 +30,11 @@ public class CoinCombination {
             this.result = 0;
         }
 
+        /**
+         * 실제 구현부이며 문제에 대한 결과값을 반환합니다.
+         * 백트랙킹을 통해 구현되었습니다.
+         * @return {@code int result}
+         */
         private int solve() {
             backTracking(0, 0);
             return result;
@@ -51,6 +56,9 @@ public class CoinCombination {
             return new Builder();
         }
 
+        /**
+         * 테스트 케이스의 편리한 추가를 위한 {@code Builder class} 입니다.
+         */
         public static class Builder {
             private final Case instance;
             private Builder() {

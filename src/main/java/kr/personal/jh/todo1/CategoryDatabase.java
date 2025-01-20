@@ -2,23 +2,28 @@ package kr.personal.jh.todo1;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * Category 를 자료구조인 StructuredData 를 사용하기 위한 Class 입니다.
+ */
 public class CategoryDatabase implements StructuredData.NodeInfo<CategoryDatabase.Category> {
 
-    private List<Category> categories;
-    //key: parent_idx, value: child_id
-    private final Map<Integer, Integer> relations;
+    private final List<Category> categories;
+    //key: child_id, value: parent_idx
+    private final Map<Integer, List<Integer>> relations;
 
     public CategoryDatabase() {
         this.categories = new ArrayList<>();
         this.relations = new HashMap<>();
     }
 
-    public void defineRelation(int parent, int child) {
+    public CategoryDatabase(List<Category> categories, Map<Integer, List<Integer>> relations) {
+        this.categories = categories;
+        this.relations = relations;
+    }
+
+    public CategoryDatabase defineRelation(int parent, int child) {
         if (parent == child) {
             throw new IllegalArgumentException("parent is the same as the child");
         }
@@ -28,20 +33,32 @@ public class CategoryDatabase implements StructuredData.NodeInfo<CategoryDatabas
         if (parent >= categories.size() || child >= categories.size()) {
             throw new IllegalArgumentException("parent and child must not be greater than " + categories.size());
         }
-        if (relations.containsKey(parent)) {
-            System.out.printf("%d parent change child %d to %d\n", parent, relations.get(parent), child);
+        if (relations.containsKey(child)) {
+            this.relations.get(child).add(parent);
+        } else {
+            ArrayList<Integer> parents = new ArrayList<>();
+            parents.add(parent);
+            this.relations.put(child, parents);
         }
-        this.relations.put(parent, child);
+        return this;
     }
 
     public Category save(Category category) {
-        Category e = category.setId(categories.size());
-        categories.add(e);
-        return e;
+        category.setId(categories.size());
+        categories.add(category);
+        return category;
+    }
+
+    public Category[] saveAll(Category... categories) {
+        if (categories == null || categories.length == 0) {
+            throw new IllegalArgumentException("categories must not be null or empty");
+        }
+        Arrays.stream(categories).forEach(this::save);
+        return categories;
     }
 
     @Override
-    public Map<Integer, Integer> getRelations() {
+    public Map<Integer, List<Integer>> getRelations() {
         return relations;
     }
 
@@ -51,37 +68,49 @@ public class CategoryDatabase implements StructuredData.NodeInfo<CategoryDatabas
     }
 
     @Override
-    public List<Category> getChildren() {
+    public List<Category> getDataList() {
         return categories;
     }
 
     public static class Category extends StructuredData.AbstractNodeClass<String> {
         private int id;
-        private final String name;
-        private boolean hasAnnouncement;
-        private boolean hasAnonymous;
+        private String name;
 
-        public Category(String name, boolean hasAnnouncement, boolean hasAnonymous) {
+        public int getId() {
+            return id;
+        }
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder {
+            private final Category instance;
+
+            private Builder() {
+                this.instance = new Category(null);
+            }
+
+            public Builder name(String name) {
+                instance.name = name;
+                return this;
+            }
+
+            public Category build() {
+                return instance;
+            }
+        }
+
+        public Category(String name) {
             this.name = name;
-            this.hasAnnouncement = hasAnnouncement;
-            this.hasAnonymous = hasAnonymous;
         }
 
-        private Category setId(int id) {
+        private void setId(int id) {
             this.id = id;
-            return this;
-        }
-
-        public void setHasAnnouncement(boolean hasAnnouncement) {
-            this.hasAnnouncement = hasAnnouncement;
-        }
-
-        public void setHasAnonymous(boolean hasAnonymous) {
-            this.hasAnonymous = hasAnonymous;
         }
 
         @Override
-        public JSONObject toJSON() {
+        public JSONObject getSimpleJson() {
             return new JSONObject()
                     .put("id", id)
                     .put("name", name);
