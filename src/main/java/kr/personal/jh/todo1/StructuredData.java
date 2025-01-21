@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.util.*;
 
 /**
+ * 자료 구조화를 위한 자료구조 {@code class} 입니다.
  * @param <K> K 자료형은 트리 구조 내 Map 의 key 자료형을 나타냅니다.
  *            추가로 식별자를 제외한 검색 조건의 자료형으로 사용됩니다.
  * @param <T> 구조화 시킬 데이터의 자료형 입니다. AbstractNodeClass 를 상속받은 Class 이어야 합니다.

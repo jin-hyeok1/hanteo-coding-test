@@ -5,7 +5,7 @@ import org.json.JSONObject;
 import java.util.*;
 
 /**
- * Category 를 자료구조인 StructuredData 를 사용하기 위한 Class 입니다.
+ * Category 를 자료구조인 StructuredData 를 사용하기 위한 {@code class} 입니다.
  */
 public class CategoryDatabase implements StructuredData.NodeInfo<CategoryDatabase.Category> {
 
